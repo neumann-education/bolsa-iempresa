@@ -3,78 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor de Empleos RSS</title>
+    <title>Visor de Empleos</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 20px; background-color: #f0f2f5; color: #1c1e21; }
-        .container { max-width: 800px; margin: 0 auto; background-color: #ffffff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { color: #0056b3; text-align: center; border-bottom: 2px solid #e7e9ec; padding-bottom: 15px; margin-bottom: 25px; }
-        #jobs-container { min-height: 100px; }
-        .job-item { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 6px; background-color: #fafafa; transition: box-shadow 0.2s ease-in-out; }
-        .job-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .job-title { margin-top: 0; margin-bottom: 10px; font-size: 1.4em; color: #333; }
-        .job-description { margin-bottom: 15px; line-height: 1.6; }
-        .job-date { font-size: 0.9em; color: #606770; display: block; margin-bottom: 15px; }
-        .job-link { display: inline-block; background-color: #007bff; color: white; padding: 10px 18px; border-radius: 5px; text-decoration: none; font-weight: bold; transition: background-color 0.2s; }
-        .job-link:hover { background-color: #0056b3; }
-        .loading, .error { text-align: center; padding: 40px; font-size: 1.2em; color: #888; }
-        .error { color: #d93025; font-weight: bold; }
+        /* Tipografía principal inspirada en Windows 11 */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Segoe UI Variable', 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background-color: #f3f3f3; /* Fondo ligeramente gris para contraste */
+            color: #1a1a1a;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Contenedor principal con efecto Mica/Acrílico */
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.85); /* Blanco semi-transparente */
+            backdrop-filter: blur(20px) saturate(180%); /* El efecto de desenfoque */
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+            padding: 30px 40px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #005a9e;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 35px;
+        }
+
+        #jobs-container {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Estilo para cada tarjeta de empleo */
+        .job-item {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid #e9e9e9;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .job-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .job-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 8px 0;
+        }
+
+        .job-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .job-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .job-link {
+            display: inline-block;
+            background-color: #0078d4; /* Azul de acento de Windows */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .job-link:hover {
+            background-color: #005a9e; /* Un tono más oscuro al pasar el ratón */
+            transform: scale(1.02);
+        }
+
+        /* Estilos para los estados de carga y error */
+        .status-message-container {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 120, 212, 0.2);
+            border-left-color: #0078d4;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #d83b01;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>Listado de Empleos RSS</h1>
+        <h1>Visor de Ofertas de Empleo</h1>
         <div id="jobs-container">
-            <p class="loading">Cargando ofertas de empleo...</p>
+            <!-- Estado inicial de carga con spinner -->
+            <div class="status-message-container">
+                <div class="spinner"></div>
+                <p>Cargando ofertas...</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // *** ¡MUY IMPORTANTE! ***
-        // PEGA AQUÍ LA URL DE IMPLEMENTACIÓN DE TU SCRIPT DE GOOGLE
+
         const API_URL = "https://script.google.com/macros/s/AKfycby1AK1btXZQ3-nQ0Q7V1iuPpmVxLJcKlZ38-8HGN69uVr-8ml3qmOrXPrqJ-zUrUvlLqw/exec";
 
         async function fetchAndDisplayJobs() {
             const container = document.getElementById('jobs-container');
 
-            if (API_URL === "AQUÍ_VA_LA_URL_DE_TU_WEB_APP") {
-                 container.innerHTML = `<p class="error">Error: Debes configurar la variable API_URL en el archivo HTML.</p>`;
-                 return;
+            if (API_URL === "AQUÍ_VA_LA_URL_DE_TU_WEB_APP" || !API_URL) {
+                container.innerHTML = `
+                    <div class="status-message-container">
+                        <p class="error-message">Error de Configuración: Debes editar el archivo HTML y pegar la URL de tu API en la variable 'API_URL'.</p>
+                    </div>`;
+                return;
             }
 
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`Error de red: ${response.status} - ${response.statusText}`);
+                
                 const data = await response.json();
-
-                if (!data.success) {
-                    throw new Error(data.error || 'El API devolvió un error.');
-                }
+                if (!data.success) throw new Error(data.error || 'El API devolvió una respuesta no exitosa.');
 
                 if (data.jobs && data.jobs.length > 0) {
-                    // Generamos todo el HTML de una vez para mayor eficiencia
-                    const jobsHtml = data.jobs.map(job => `
-                        <div class="job-item">
-                            <h2 class="job-title">${job.title}</h2>
-                            <small class="job-date">Publicado: ${new Date(job.pubDate).toLocaleString('es-ES')}</small>
-                            <p class="job-description">${job.description}</p>
-                            <a href="${job.link}" class="job-link" target="_blank" rel="noopener noreferrer">Ver Oferta Completa</a>
-                        </div>
-                    `).join('');
+                    const jobsHtml = data.jobs.map(job => {
+                        // Limpiar y formatear los datos para una visualización segura
+                        const title = job.title || 'Sin Título';
+                        const description = job.description || 'Sin Descripción';
+                        const link = job.link || '#';
+                        const date = job.pubDate ? new Date(job.pubDate).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' }) : 'Fecha no disponible';
+
+                        return `
+                            <div class="job-item">
+                                <h2 class="job-title">${title}</h2>
+                                <small class="job-date">Publicado: ${date}</small>
+                                <p class="job-description">${description}</p>
+                                <a href="${link}" class="job-link" target="_blank" rel="noopener noreferrer">Ver Oferta</a>
+                            </div>
+                        `;
+                    }).join('');
                     container.innerHTML = jobsHtml;
                 } else {
-                    container.innerHTML = `<p class="loading">No se encontraron ofertas de empleo en el feed.</p>`;
+                    container.innerHTML = `
+                        <div class="status-message-container">
+                            <p>No se encontraron ofertas de empleo en este momento.</p>
+                        </div>`;
                 }
 
             } catch (error) {
-                console.error('Error al obtener los trabajos:', error);
-                container.innerHTML = `<p class="error">No se pudieron cargar los datos. Revisa la consola para más detalles.<br><small>${error.message}</small></p>`;
+                console.error('Error al obtener los empleos:', error);
+                container.innerHTML = `
+                    <div class="status-message-container">
+                        <p class="error-message">Hubo un problema al cargar los datos.<br><small>${error.message}</small></p>
+                    </div>`;
             }
         }
 
-        // Cargar los datos automáticamente al cargar la página
-        window.onload = fetchAndDisplayJobs;
+        // Cargar los datos tan pronto como la página esté lista
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayJobs);
     </script>
+
 </body>
 </html>
