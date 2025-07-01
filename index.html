@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor de Empleos RSS</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 20px; background-color: #f0f2f5; color: #1c1e21; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #ffffff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #0056b3; text-align: center; border-bottom: 2px solid #e7e9ec; padding-bottom: 15px; margin-bottom: 25px; }
+        #jobs-container { min-height: 100px; }
+        .job-item { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 6px; background-color: #fafafa; transition: box-shadow 0.2s ease-in-out; }
+        .job-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .job-title { margin-top: 0; margin-bottom: 10px; font-size: 1.4em; color: #333; }
+        .job-description { margin-bottom: 15px; line-height: 1.6; }
+        .job-date { font-size: 0.9em; color: #606770; display: block; margin-bottom: 15px; }
+        .job-link { display: inline-block; background-color: #007bff; color: white; padding: 10px 18px; border-radius: 5px; text-decoration: none; font-weight: bold; transition: background-color 0.2s; }
+        .job-link:hover { background-color: #0056b3; }
+        .loading, .error { text-align: center; padding: 40px; font-size: 1.2em; color: #888; }
+        .error { color: #d93025; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Listado de Empleos RSS</h1>
+        <div id="jobs-container">
+            <p class="loading">Cargando ofertas de empleo...</p>
+        </div>
+    </div>
+
+    <script>
+        // *** ¡MUY IMPORTANTE! ***
+        // PEGA AQUÍ LA URL DE IMPLEMENTACIÓN DE TU SCRIPT DE GOOGLE
+        const API_URL = "https://script.google.com/macros/s/AKfycby1AK1btXZQ3-nQ0Q7V1iuPpmVxLJcKlZ38-8HGN69uVr-8ml3qmOrXPrqJ-zUrUvlLqw/exec";
+
+        async function fetchAndDisplayJobs() {
+            const container = document.getElementById('jobs-container');
+
+            if (API_URL === "AQUÍ_VA_LA_URL_DE_TU_WEB_APP") {
+                 container.innerHTML = `<p class="error">Error: Debes configurar la variable API_URL en el archivo HTML.</p>`;
+                 return;
+            }
+
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'El API devolvió un error.');
+                }
+
+                if (data.jobs && data.jobs.length > 0) {
+                    // Generamos todo el HTML de una vez para mayor eficiencia
+                    const jobsHtml = data.jobs.map(job => `
+                        <div class="job-item">
+                            <h2 class="job-title">${job.title}</h2>
+                            <small class="job-date">Publicado: ${new Date(job.pubDate).toLocaleString('es-ES')}</small>
+                            <p class="job-description">${job.description}</p>
+                            <a href="${job.link}" class="job-link" target="_blank" rel="noopener noreferrer">Ver Oferta Completa</a>
+                        </div>
+                    `).join('');
+                    container.innerHTML = jobsHtml;
+                } else {
+                    container.innerHTML = `<p class="loading">No se encontraron ofertas de empleo en el feed.</p>`;
+                }
+
+            } catch (error) {
+                console.error('Error al obtener los trabajos:', error);
+                container.innerHTML = `<p class="error">No se pudieron cargar los datos. Revisa la consola para más detalles.<br><small>${error.message}</small></p>`;
+            }
+        }
+
+        // Cargar los datos automáticamente al cargar la página
+        window.onload = fetchAndDisplayJobs;
+    </script>
+</body>
+</html>
