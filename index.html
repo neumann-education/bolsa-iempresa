@@ -3,111 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor de Empleos</title>
+    <title>Portal de Empleo</title>
     <style>
-        /* Tipografía principal inspirada en Windows 11 */
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        body {
-            font-family: 'Segoe UI Variable', 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-            margin: 0;
-            padding: 40px 20px;
-            background-color: #f3f3f3; /* Fondo ligeramente gris para contraste */
-            color: #1a1a1a;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+        :root {
+            --bg-color: #f7f9fc;
+            --accent-start: #0078d4; /* Azul de Windows */
+            --accent-end: #4dabf7;   /* Azul claro para degradados */
+            --accent-hover: #005a9e; /* Azul más oscuro para hover */
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --border-color: rgba(255, 255, 255, 0.4);
+            --shadow-color: rgba(0, 0, 0, 0.05);
         }
 
-        /* Contenedor principal con efecto Mica/Acrílico */
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 50px 20px;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Degradados de aurora con los tonos azules */
+            background: radial-gradient(circle at 15% 30%, rgba(0, 120, 212, 0.1), transparent 40%),
+                        radial-gradient(circle at 85% 70%, rgba(77, 171, 247, 0.1), transparent 40%);
+            filter: blur(80px);
+            z-index: -1;
+            animation: move-aurora 25s infinite alternate ease-in-out;
+        }
+
+        @keyframes move-aurora {
+            from { transform: translate(-20px, -30px) scale(1.1); }
+            to { transform: translate(20px, 30px) scale(0.9); }
+        }
+
         .container {
             max-width: 850px;
             margin: 0 auto;
-            background-color: rgba(255, 255, 255, 0.85); /* Blanco semi-transparente */
-            backdrop-filter: blur(20px) saturate(180%); /* El efecto de desenfoque */
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.125);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-            padding: 30px 40px;
+            background-color: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px 0 var(--shadow-color);
+            padding: 35px 45px;
         }
-
+        
+        /* El h1 ha sido eliminado del HTML, pero mantenemos el estilo por si se quiere reusar */
         h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #005a9e;
+            font-size: 2.5rem;
+            font-weight: 700;
             text-align: center;
             margin-top: 0;
-            margin-bottom: 35px;
+            margin-bottom: 40px;
+            background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         #jobs-container {
-            transition: opacity 0.3s ease-in-out;
+            transition: opacity 0.5s ease-in-out;
         }
 
-        /* Estilo para cada tarjeta de empleo */
         .job-item {
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 1px solid #e9e9e9;
-            border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
 
         .job-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
         }
 
         .job-title {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 600;
-            color: #1a1a1a;
-            margin: 0 0 8px 0;
-        }
-
-        .job-date {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 15px;
-            display: block;
+            color: var(--text-primary);
+            margin: 0 0 12px 0;
         }
 
         .job-description {
             font-size: 1rem;
-            line-height: 1.6;
-            color: #333;
-            margin-bottom: 20px;
+            line-height: 1.7;
+            color: #495057;
+            margin-bottom: 25px;
+        }
+        
+        .job-item hr {
+            border: 0;
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 20px 0;
+        }
+
+        .job-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .job-date {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
         }
 
         .job-link {
             display: inline-block;
-            background-color: #0078d4; /* Azul de acento de Windows */
+            background-color: var(--accent-start);
             color: white;
             padding: 12px 24px;
-            border-radius: 6px;
+            border-radius: 8px;
             text-decoration: none;
             font-weight: 500;
             transition: background-color 0.2s ease, transform 0.1s ease;
+            border: none;
+            cursor: pointer;
         }
 
         .job-link:hover {
-            background-color: #005a9e; /* Un tono más oscuro al pasar el ratón */
-            transform: scale(1.02);
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
         }
 
-        /* Estilos para los estados de carga y error */
         .status-message-container {
             text-align: center;
             padding: 60px 20px;
-            color: #6c757d;
+            color: var(--text-secondary);
         }
         
         .spinner {
             width: 40px;
             height: 40px;
             border: 4px solid rgba(0, 120, 212, 0.2);
-            border-left-color: #0078d4;
+            border-left-color: var(--accent-start);
             border-radius: 50%;
             margin: 0 auto 20px auto;
             animation: spin 1s linear infinite;
@@ -121,79 +168,106 @@
             color: #d83b01;
             font-weight: 500;
         }
+        
+        #pagination-container {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Visor de Ofertas de Empleo</h1>
+        <!-- El H1 ha sido eliminado de aquí -->
         <div id="jobs-container">
-            <!-- Estado inicial de carga con spinner -->
             <div class="status-message-container">
                 <div class="spinner"></div>
                 <p>Cargando ofertas...</p>
             </div>
         </div>
+        <div id="pagination-container">
+            <button id="load-more-btn" class="job-link" style="display: none;">Ver más</button>
+        </div>
     </div>
 
     <script>
-
         const API_URL = "https://script.google.com/macros/s/AKfycby1AK1btXZQ3-nQ0Q7V1iuPpmVxLJcKlZ38-8HGN69uVr-8ml3qmOrXPrqJ-zUrUvlLqw/exec";
+        
+        let allJobs = []; 
+        let currentIndex = 0; 
+        const JOBS_PER_PAGE = 5;
 
-        async function fetchAndDisplayJobs() {
-            const container = document.getElementById('jobs-container');
+        const jobsContainer = document.getElementById('jobs-container');
+        const paginationContainer = document.getElementById('pagination-container');
+        const loadMoreBtn = document.getElementById('load-more-btn');
 
-            if (API_URL === "AQUÍ_VA_LA_URL_DE_TU_WEB_APP" || !API_URL) {
-                container.innerHTML = `
+        function displayNextJobs() {
+            const jobsToDisplay = allJobs.slice(currentIndex, currentIndex + JOBS_PER_PAGE);
+
+            if (jobsToDisplay.length === 0 && currentIndex === 0) {
+                jobsContainer.innerHTML = `
                     <div class="status-message-container">
-                        <p class="error-message">Error de Configuración: Debes editar el archivo HTML y pegar la URL de tu API en la variable 'API_URL'.</p>
+                        <p>No se encontraron ofertas de empleo en este momento.</p>
                     </div>`;
                 return;
             }
 
+            const jobsHtml = jobsToDisplay.map(job => {
+                const title = job.title || 'Título no disponible';
+                const description = job.description || 'Sin descripción disponible.';
+                const link = job.link || '#';
+                const date = job.pubDate ? new Date(job.pubDate).toLocaleDateString('es-ES', { dateStyle: 'long' }) : 'Fecha no disponible';
+
+                return `
+                    <div class="job-item">
+                        <h2 class="job-title">${title}</h2>
+                        <p class="job-description">${description}</p>
+                        <hr>
+                        <div class="job-footer">
+                            <small class="job-date">Publicado: ${date}</small>
+                            <a href="${link}" class="job-link" target="_blank" rel="noopener noreferrer">Ver Oferta</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            jobsContainer.insertAdjacentHTML('beforeend', jobsHtml);
+            
+            currentIndex += jobsToDisplay.length;
+
+            if (currentIndex < allJobs.length) {
+                loadMoreBtn.style.display = 'inline-block';
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        async function fetchAndInitializeJobs() {
             try {
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error(`Error de red: ${response.status} - ${response.statusText}`);
                 
                 const data = await response.json();
-                if (!data.success) throw new Error(data.error || 'El API devolvió una respuesta no exitosa.');
+                if (!data.success) throw new Error(data.error || 'El API devolvió una respuesta no válida.');
 
-                if (data.jobs && data.jobs.length > 0) {
-                    const jobsHtml = data.jobs.map(job => {
-                        // Limpiar y formatear los datos para una visualización segura
-                        const title = job.title || 'Sin Título';
-                        const description = job.description || 'Sin Descripción';
-                        const link = job.link || '#';
-                        const date = job.pubDate ? new Date(job.pubDate).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' }) : 'Fecha no disponible';
-
-                        return `
-                            <div class="job-item">
-                                <h2 class="job-title">${title}</h2>
-                                <small class="job-date">Publicado: ${date}</small>
-                                <p class="job-description">${description}</p>
-                                <a href="${link}" class="job-link" target="_blank" rel="noopener noreferrer">Ver Oferta</a>
-                            </div>
-                        `;
-                    }).join('');
-                    container.innerHTML = jobsHtml;
-                } else {
-                    container.innerHTML = `
-                        <div class="status-message-container">
-                            <p>No se encontraron ofertas de empleo en este momento.</p>
-                        </div>`;
-                }
+                allJobs = data.jobs || [];
+                
+                jobsContainer.innerHTML = ''; 
+                
+                displayNextJobs();
 
             } catch (error) {
                 console.error('Error al obtener los empleos:', error);
-                container.innerHTML = `
+                jobsContainer.innerHTML = `
                     <div class="status-message-container">
                         <p class="error-message">Hubo un problema al cargar los datos.<br><small>${error.message}</small></p>
                     </div>`;
+                paginationContainer.style.display = 'none';
             }
         }
 
-        // Cargar los datos tan pronto como la página esté lista
-        document.addEventListener('DOMContentLoaded', fetchAndDisplayJobs);
+        document.addEventListener('DOMContentLoaded', fetchAndInitializeJobs);
+        loadMoreBtn.addEventListener('click', displayNextJobs);
     </script>
 
 </body>
